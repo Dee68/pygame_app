@@ -3,7 +3,6 @@ from game.game_state import GameState
 from game.gun import Gun
 from game.target import Target
 from game.particle import Particle
-#from game.score import Score
 import random
 from game.text_label import TextLabel
 import config
@@ -28,8 +27,6 @@ class Game:
     
         self.running = True
         self.score = 0
-        # self.lives = 5
-        # self.level = 1
         self.lives = config.STARTING_LIVES
         self.level = config.START_LEVEL
         self.target_speed = config.TARGET_SPEED
