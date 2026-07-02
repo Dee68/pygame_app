@@ -4,6 +4,7 @@ Technologies:
 - Python
 - Pillow
 - Pygame 
+- OpenCV
 
 Features:
 - OOP Design

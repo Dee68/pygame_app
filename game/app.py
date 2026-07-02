@@ -5,13 +5,25 @@ from game.target import Target
 from game.particle import Particle
 import random
 from game.text_label import TextLabel
+from pathlib import Path
 import config
 import math
+import cv2
+
+
+video_path = (
+    Path(__file__).resolve().parent.parent
+    / "assets"
+    / "videos"
+    / "intro.mp4"
+)
 
 class Game:
     def __init__(self):
         # set up the screen width and height
         self.screen = pygame.display.set_mode((config.WIDTH, config.HEIGHT))
+        # get the video
+        self.video = cv2.VideoCapture(str(video_path))
         # load a background image and stretch to screen size
         self.bg_image = pygame.image.load(
             "assets/images/sky.png"
@@ -63,10 +75,11 @@ class Game:
             20,
             color="#0000FFA4"
         )
-        self.state = GameState.MENU
+        self.state = GameState.INTRO
         self.shoot_sound = pygame.mixer.Sound("assets/sounds/gun_shot.mp3")
         self.bg_sound = pygame.mixer.Sound("assets/sounds/start_game.mp3")
         self.great_sound = pygame.mixer.Sound("assets/sounds/doing_great.mp3")
+        self.intro_sound = pygame.mixer.Sound("assets/sounds/intro_music.mp3")
         
         self.rotor_angle = 0
         self.body_angle = 0
@@ -78,6 +91,7 @@ class Game:
 
         self.targets = []
         self.particles = []
+        self.intro_sound.play()
         
 
         
@@ -194,6 +208,30 @@ class Game:
             self.bullets.append(bullet)
             self.shoot_sound.play()
     
+    #
+    def update_video(self):
+
+        ret, frame = self.video.read()
+
+        if not ret:
+            self.video.release()
+            self.state = GameState.MENU
+            return
+
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+        frame = cv2.resize(
+            frame,
+            (config.WIDTH, config.HEIGHT)
+        )
+
+        surface = pygame.surfarray.make_surface(
+            frame.swapaxes(0, 1)
+        )
+
+        self.screen.blit(surface, (0, 0))
+    
+    #
     def start_game(self):
         self.state = GameState.PLAYING
         self.bg_sound.play(-1) # continuos
@@ -328,7 +366,9 @@ class Game:
             # self.handle_events()
             # self.update()
             # self.draw()
-            if self.state == GameState.MENU:
+            if self.state == GameState.INTRO:
+                self.update_video()
+            elif self.state == GameState.MENU:
                 self.handle_menu_events()
                 self.draw_menu()
 
